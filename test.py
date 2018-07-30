@@ -2,6 +2,7 @@ import configparser #ConfigParser to connect to oanda
 import pandas as pd #pandas
 import oandapy as opy #oanda api python wrapper
 import numpy as np #number/data analytics module
+from IPython import get_ipython #pull from iPython for matlab
 
 sets = {('2018-7-23', '2018-7-26')}
 insts = {'EUR_USD', 'USD_CAD'}
@@ -20,21 +21,15 @@ for pair in sets:
 f = [] #dataframe holding list making a frame for each data set
 for data in d:
     f.append(pd.DataFrame(data['candles']).set_index('time'))
-
+cols = []
 for frame in f:
     frame.index = pd.DatetimeIndex(frame.index)
     frame.info()
-    frame['returns'] = np.log(frame['closeAsk'].shift(1))
-#dataOne = oanda.get_history(instrument = 'EUR_USD', start='2018-7-25', end='2018-7-27', granularity = 'M1')
-#dataTwo = oanda.get_history(instrument = 'USD_CAD', start='2018-7-25', end='2018-7-27', granularity = 'M1')
-"""
-frameOne = pd.DataFrame(dataOne['candles']).set_index('time')
-frameOne.index = pd.DatetimeIndex(frameOne.index)
-frameOne.info()
-print('f1 info')
-
-frameTwo = pd.DataFrame(dataTwo['candles']).set_index('time')
-frameTwo.index = pd.DatetimeIndex(frameTwo.index)
-frameTwo.info()
-print('f2 info')
-"""
+    frame['returns'] = np.log(frame['closeAsk']/frame['closeAsk'].shift(1))
+    for momentum in [15, 30, 60, 120]:
+        col = 'position_%s' % momentum
+        print(frame['returns'].rolling(momentum).mean())
+        frame[col] = np.sign(frame['returns'].rolling(momentum).mean())
+        cols.append(col)
+ipy = get_ipython()
+ipy.run_line_magic('matplotlib', 'inline')
