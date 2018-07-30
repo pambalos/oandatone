@@ -24,6 +24,7 @@ for data in d:
 for frame in f:
     frame.index = pd.DatetimeIndex(frame.index)
     frame.info()
+    frame['returns'] = np.log(frame['closeAsk'].shift(1))
 #dataOne = oanda.get_history(instrument = 'EUR_USD', start='2018-7-25', end='2018-7-27', granularity = 'M1')
 #dataTwo = oanda.get_history(instrument = 'USD_CAD', start='2018-7-25', end='2018-7-27', granularity = 'M1')
 """
